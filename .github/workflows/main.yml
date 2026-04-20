@@ -11,6 +11,19 @@ jobs:
         run: |
           unzip -q BasmahApp.zip
           rm BasmahApp.zip
+          echo "=== Contents after unzip ==="
+          ls -la
+
+      - name: Verify gradlew location
+        run: |
+          if [ -f "BasmahApp/gradlew" ]; then
+            echo "✅ gradlew found inside BasmahApp/"
+          elif [ -f "gradlew" ]; then
+            echo "✅ gradlew found in root"
+          else
+            echo "❌ gradlew not found!"
+            exit 1
+          fi
 
       - uses: actions/setup-java@v4
         with:
@@ -21,13 +34,13 @@ jobs:
         with:
           packages: 'platforms;android-34 build-tools;34.0.0'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      - name: Grant execute permission and Build
+        run: |
+          cd BasmahApp
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
       - uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: BasmahApp/app/build/outputs/apk/debug/app-debug.apk
